@@ -1,0 +1,5 @@
+---
+applications:
+ - name: NPS_Trend
+   random-route: true
+   memory: 512M
