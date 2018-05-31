@@ -1,10 +1,13 @@
 import pandas as pd
 import numpy as np
 import dash
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
+from flask import Flask
+
+
 
 
 daily_df = pd.read_csv("https://raw.githubusercontent.com/jdpersona/Dash_Apps/master/daily_df.csv")
