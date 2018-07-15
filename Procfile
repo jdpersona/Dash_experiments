@@ -1,1 +1,1 @@
-web: gunicorn app:server --timeout 300
+web: R -f run.R --gui-none --no-save
