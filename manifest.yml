@@ -1,7 +1,7 @@
 ---
 applications:  
 - name: SaaS_Response
-  memory: 512M
+  memory: 728M
   instances: 1
   buildpack: git://github.com/beibeiyang/cf-buildpack-r.git
   env:
