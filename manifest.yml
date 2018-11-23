@@ -1,6 +1,6 @@
 ---
 applications:  
-- name: SaaS_Response
+- name: shiny_auth
   memory: 728M
   instances: 1
   buildpack: git://github.com/beibeiyang/cf-buildpack-r.git
