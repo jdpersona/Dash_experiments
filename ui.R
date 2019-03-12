@@ -1,85 +1,105 @@
+library(shinydashboard)
 library(leaflet)
+library(lubridate)
+library(billboarder)
+library(readr)
+library(stringr)
 
-# Choices for drop-downs
-vars <- c(
-  "Is SuperZIP?" = "superzip",
-  "Centile score" = "centile",
-  "College education" = "college",
-  "Median income" = "income",
-  "Population" = "adultpop"
+
+
+library(shiny)
+
+
+tweets <- read_csv("https://raw.githubusercontent.com/jdpersona/shiny_deploy/master/dashboard_data_final_v3_test.csv", col_names = TRUE)
+
+tweets <- tweets[, c(2:length(colnames(tweets)))]
+
+
+tweets$created_at = str_trim(string = substr(tweets$created_at, start = 1, stop=10), side='both')
+
+tweets$created_at = mdy(tweets$created_at)
+
+tweets$created_at = as.Date(tweets$created_at, "dd/mm/yy")
+
+
+
+colorByCategory <- colorFactor(palette = c("green", "blue", "red",
+                                           "yellow", "brown", "darkorchid1",
+                                           "darkseagreen1", "purple", "orange","hotpink", "khaki"),
+                               level = c("Personal","Alert: Down Trees", "Alert: Flooding", "Alert: Misc.", 
+                                         "Alert: Power Outage", "Alert: Road Closure", "Alert: Structural Damage", 
+                                         "News", "Request", "Supply Center", "Update: Power On") )
+
+
+
+header <- dashboardHeader(
+  title = "Hurricane command center", titleWidth = 400
 )
 
+body <- dashboardBody(
 
-navbarPage("Hurricane Comand Center", id="nav",
-
-  tabPanel("Interactive map",
-    div(class="outer",
-
-      tags$head(
-        # Include our custom CSS
-        includeCSS("styles.css"),
-        includeScript("gomap.js")
-      ),
-
-      # If not using custom CSS, set height of leafletOutput to a number instead of percent
-      leafletOutput("map", width="100%", height="100%"),
-
-      # Shiny versions prior to 0.11 should use class = "modal" instead.
-      absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
-        draggable = TRUE, top = 60, left = "auto", right = 20, bottom = "auto",
-        width = 330, height = "auto",
-
-        h2("Alerts explorer"),
+  dateRangeInput('date',
+                 label = NULL,
+                 start = "2012-10-12", end = "2018-10-20",
+                 max = "2018-10-20",
+                 separator = " - ", format = "dd/mm/yy",
+                 startview = "month",language = "en", weekstart = 1
+  ),
+  
+  fluidRow(
     
-        #selectInput('alert','Chose alert type',choices = c("News","Personal","Alert: Down Trees")),
-        selectInput("colors", "Alert Type",c("Personal", "News", "Alert: Down Trees")),
-        selectInput("size", "Size", vars, selected = "adultpop"),
-        conditionalPanel("input.color == 'superzip' || input.size == 'superzip'",
-          # Only prompt for threshold when coloring or sizing by superzip
-          numericInput("threshold", "SuperZIP threshold (top n percentile)", 5)
-        ),
-
+    
+    
+    
+    column(width = 12,
+           box(width = NULL, solidHeader = TRUE,
+               
+               
+               leafletOutput("busmap", height = 400)
+         
+               
+                )
+           
+           
+           
+       
+   
+           
+       ),
+    
+    
+    
+    fluidRow(
+      
+      
+      column(
+        width = 8, 
         
-        plotOutput("histCentile", height = 200),
-        
-        plotOutput("scatterCollegeIncome", height = 250)
+        billboarderOutput('graph', height = 350)
         
         
       ),
-
-      tags$div(id="cite",
-        'Data compiled for ', tags$em('Coming Apart: The State of White America, 1960–2010'), ' by Charles Murray (Crown Forum, 2012).'
+      
+      
+      column(
+        width = 4, 
+        
+        billboarderOutput("predicted_freq", height = 350)
+        
+        
       )
+      
+      
+      
+      
+
     )
-  ),
 
-  tabPanel("Data explorer",
-    fluidRow(
-      column(3,
-        selectInput("states", "States", c("All states"="", structure(state.abb, names=state.name), "Washington, DC"="DC"), multiple=TRUE)
-      ),
-      column(3,
-        conditionalPanel("input.states",
-          selectInput("cities", "Cities", c("All cities"=""), multiple=TRUE)
-        )
-      ),
-      column(3,
-        conditionalPanel("input.states",
-          selectInput("zipcodes", "Zipcodes", c("All zipcodes"=""), multiple=TRUE)
-        )
-      )
-    ),
-    fluidRow(
-      column(1,
-        numericInput("minScore", "Min score", min=0, max=100, value=0)
-      ),
-      column(1,
-        numericInput("maxScore", "Max score", min=0, max=100, value=100)
-      )
-    ),
-    hr(),
-    DT::dataTableOutput("ziptable")
-  ),
+  )
+)
 
-  conditionalPanel("false", icon("crosshair"))
+dashboardPage(
+  header,
+  dashboardSidebar(disable = TRUE),
+  body
 )
