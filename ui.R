@@ -84,7 +84,7 @@ body <- dashboardBody(
       column(
         width = 4, 
         
-        billboarderOutput("predicted_freq", height = 350)
+        billboarderOutput("predicted_freq", height = 370)
         
         
       )
