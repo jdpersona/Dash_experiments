@@ -1,6 +1,6 @@
 ---
 applications:  
-- name: shiny_app
+- name: command_center
   memory: 512M
   instances: 1
   buildpack: git://github.com/beibeiyang/cf-buildpack-r.git
